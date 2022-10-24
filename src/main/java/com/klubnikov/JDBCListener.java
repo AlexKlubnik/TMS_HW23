@@ -11,7 +11,6 @@ import java.sql.SQLException;
 public class JDBCListener implements ServletContextListener {
 
 
-
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
@@ -26,8 +25,7 @@ public class JDBCListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         try {
-            JDBCConnector.closeJdbcConnection((Connection) sce
-                    .getServletContext()
+            JDBCConnector.closeJdbcConnection((Connection) sce.getServletContext()
                     .getAttribute("connectionToDb"));
         } catch (SQLException e) {
             e.printStackTrace();

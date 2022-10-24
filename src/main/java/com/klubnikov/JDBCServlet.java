@@ -14,8 +14,8 @@ import java.sql.*;
 public class JDBCServlet extends HttpServlet {
 
     public static final String SELECT_ALL_STUDENTS = "select * from tms_students";
-    public static final String GET_PAGE_VISITS_COUNTER = "select * from page_visit_counter";
-    public static final String UPDATE_VISIT_COUNTER = "update page_visit_counter set counter = ?";
+    public static final String GET_PAGE_VISITS_COUNTER = "select counter from page_visit_counter where id = 1";
+    public static final String UPDATE_VISIT_COUNTER = "update page_visit_counter set counter = ? where id = 1";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,7 +28,8 @@ public class JDBCServlet extends HttpServlet {
         Connection connection = (Connection) getServletContext().getAttribute("connectionToDb");
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SELECT_ALL_STUDENTS);
-             ResultSet resultSet1 = statement.executeQuery(GET_PAGE_VISITS_COUNTER)) {
+
+        ) {
 
             writer.println(docType + "<html><head><title>" + title + "</title></head><body>");
             writer.println("<h2>Tms students</h2>");
@@ -43,8 +44,9 @@ public class JDBCServlet extends HttpServlet {
                 writer.println("Age: " + age + "</br>");
             }
 
-            int visitCounter = resultSet1.getInt("counter");
-            writer.println("This page was visited " + visitCounter + " times.");
+
+            int visitCounter = getVisitCounterFromDb(connection);
+            writer.println("This page was visited " + visitCounter + " times." + "</br>");
             visitCounter++;
             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_VISIT_COUNTER);
             preparedStatement.setInt(1, visitCounter);
@@ -55,5 +57,10 @@ public class JDBCServlet extends HttpServlet {
         writer.println("</body></html>");
     }
 
-
+    private int getVisitCounterFromDb(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet1 = statement.executeQuery(GET_PAGE_VISITS_COUNTER);
+        resultSet1.next();
+        return resultSet1.getInt("counter");
+    }
 }
